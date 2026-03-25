@@ -512,9 +512,35 @@ export default function FarmerSignup() {
     if (!agreed)          { setError("Please agree to the terms & conditions."); return; }
 
     setLoading(true);
-    await new Promise(r => setTimeout(r, 2000));
-    setLoading(false);
-    setSuccess(true);
+    try {
+      const payload = { role, name, phone, email, password };
+      if (role === 'farmer') {
+        payload.village = village;
+        payload.cropType = cropType;
+      } else {
+        payload.company = company;
+        payload.buyerType = buyerType;
+      }
+
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong.");
+      }
+
+      setSuccess(true);
+      setTimeout(() => navigate('/'), 2000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFarmer = role === "farmer";

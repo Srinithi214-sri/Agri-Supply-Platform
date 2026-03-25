@@ -515,9 +515,26 @@ export default function FarmerLogin() {
     if (!password) { setError("Please enter your password."); return; }
 
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1800));
-    setLoading(false);
-    setSuccess(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Invalid credentials.");
+      }
+      
+      localStorage.setItem("token", data.token);
+      setSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 1500);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
