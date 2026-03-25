@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+import sys
+import json
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -94,9 +96,9 @@ def train_model():
 
 # Train model globally to avoid retraining on every prediction call
 # In a real app, you would train offline and load the saved model (.pkl)
-print("Training model...")
+print("Training model...", file=sys.stderr)
 MODEL, ENCODERS, FEATURE_COLS = train_model()
-print("Model trained successfully!")
+print("Model trained successfully!", file=sys.stderr)
 
 # 3. Main Prediction Function
 def predict_price(input_data):
@@ -227,6 +229,15 @@ def plot_price_trend(input_data, predicted_price):
 
 # 5. Interactive Usage
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == '--json':
+        try:
+            input_data = json.loads(sys.argv[2])
+            result = predict_price(input_data)
+            print(json.dumps(result))
+        except Exception as e:
+            print(json.dumps({"error": str(e)}))
+        sys.exit(0)
+
     valid_crops = ['Wheat', 'Rice', 'Tomato', 'Onion', 'Potato']
     
     print("\n" + "="*50)
