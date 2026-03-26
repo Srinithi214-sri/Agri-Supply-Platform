@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Users, Sprout, Activity, ShieldCheck } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState({ registeredFarmers: 0, activeBuyers: 0, totalTransactions: 0 });
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdminStats = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/admin/dashboard-stats');
+        if (res.data.success) {
+          setStats(res.data.stats);
+          setTransactions(res.data.recentTransactions);
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdminStats();
+  }, []);
+
   return (
     <div className="animate-fade-in">
       <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -20,7 +42,7 @@ const AdminDashboard = () => {
           </div>
           <div className="summary-details">
             <h3>Registered Farmers</h3>
-            <p>1,240</p>
+            <p>{loading ? '...' : stats.registeredFarmers}</p>
           </div>
         </div>
         <div className="card summary-card animate-slide-in" style={{ animationDelay: '0.2s' }}>
@@ -29,7 +51,7 @@ const AdminDashboard = () => {
           </div>
           <div className="summary-details">
             <h3>Active Buyers</h3>
-            <p>856</p>
+            <p>{loading ? '...' : stats.activeBuyers}</p>
           </div>
         </div>
         <div className="card summary-card animate-slide-in" style={{ animationDelay: '0.3s' }}>
@@ -38,7 +60,7 @@ const AdminDashboard = () => {
           </div>
           <div className="summary-details">
             <h3>Total Transactions</h3>
-            <p>14,589</p>
+            <p>{loading ? '...' : stats.totalTransactions}</p>
           </div>
         </div>
       </section>
@@ -59,24 +81,24 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { id: '#TRX-9901', crop: 'Wheat (500kg)', farmer: 'Ramesh Singh', buyer: 'Kisan Traders', amt: '₹21,000', status: 'Completed' },
-                  { id: '#TRX-9902', crop: 'Tomato (200kg)', farmer: 'Aarti Patil', buyer: 'FreshMart', amt: '₹5,600', status: 'In Transit' },
-                  { id: '#TRX-9903', crop: 'Onion (1000kg)', farmer: 'Vijay Kumar', buyer: 'Metro Retail', amt: '₹35,000', status: 'Pending' },
-                ].map((row, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
-                    <td style={{ padding: '1rem', fontWeight: 500 }}>{row.id}</td>
-                    <td style={{ padding: '1rem' }}>{row.crop}</td>
-                    <td style={{ padding: '1rem' }}>{row.farmer}</td>
-                    <td style={{ padding: '1rem' }}>{row.buyer}</td>
-                    <td style={{ padding: '1rem', color: 'var(--primary-green)', fontWeight: 600 }}>{row.amt}</td>
-                    <td style={{ padding: '1rem' }}>
-                      <span className={`badge ${row.status === 'Completed' ? 'badge-success' : row.status === 'In Transit' ? 'badge-info' : 'badge-warning'}`}>
-                        {row.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {transactions.length === 0 ? (
+                  <tr><td colSpan="6" style={{ padding: '1rem', textAlign: 'center' }}>No transactions found.</td></tr>
+                ) : (
+                  transactions.map((row, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
+                      <td style={{ padding: '1rem', fontWeight: 500 }}>{row.shipmentId}</td>
+                      <td style={{ padding: '1rem' }}>{row.crop}</td>
+                      <td style={{ padding: '1rem' }}>{row.farmer}</td>
+                      <td style={{ padding: '1rem' }}>{row.buyer}</td>
+                      <td style={{ padding: '1rem', color: 'var(--primary-green)', fontWeight: 600 }}>{row.amount}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <span className={`badge ${row.status === 'delivered' ? 'badge-success' : row.status === 'in-transit' ? 'badge-info' : row.status === 'loading' ? 'badge-warning' : 'badge-danger'}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

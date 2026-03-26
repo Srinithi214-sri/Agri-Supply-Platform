@@ -531,7 +531,9 @@ export default function FarmerLogin() {
       if (data.name) localStorage.setItem("name", data.name);
       setSuccess(true);
       
-      const targetRoute = data.role === 'buyer' ? '/buyer' : '/dashboard';
+      let targetRoute = '/dashboard';
+      if (data.role === 'buyer') targetRoute = '/buyer';
+      if (data.role === 'admin') targetRoute = '/admin';
       setTimeout(() => navigate(targetRoute), 1500);
     } catch (err) {
       setError(err.message);
