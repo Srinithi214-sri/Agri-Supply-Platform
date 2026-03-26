@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 
 import mandiRoutes from "./routes/mandiRoutes.js";
+import shipmentRoutes from "./routes/shipmentRoutes.js";
 import authRoutes from "./routes/auth.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/mandi", mandiRoutes);
+app.use("/api/shipments", shipmentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
 
