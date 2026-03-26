@@ -23,6 +23,18 @@ const shipmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    farmer: {
+      type: String,
+      required: true,
+    },
+    buyer: {
+      type: String,
+      required: true,
+    },
+    amount: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       required: true,

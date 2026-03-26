@@ -7,6 +7,7 @@ import mandiRoutes from "./routes/mandiRoutes.js";
 import shipmentRoutes from "./routes/shipmentRoutes.js";
 import authRoutes from "./routes/auth.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use("/api/mandi", mandiRoutes);
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/agrofarmers';
