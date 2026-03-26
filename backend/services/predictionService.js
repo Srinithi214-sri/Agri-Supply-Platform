@@ -22,11 +22,7 @@ export const predictCropPrice = async (cropName) => {
       demand: "medium", 
       supply: "medium",
       rainfall: "medium",
-      season: "Summer", 
-      transport_cost: "medium",
-      diesel_price: 95.0,
-      distance_to_market: 150,
-      market_tier: "Tier 2"
+      season: "Summer"
     };
 
     // 3. Spawn Python process
