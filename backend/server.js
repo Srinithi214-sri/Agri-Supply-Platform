@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 
 import mandiRoutes from "./routes/mandiRoutes.js";
 import authRoutes from "./routes/auth.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 // Routes
 app.use("/api/mandi", mandiRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/agrofarmers';
