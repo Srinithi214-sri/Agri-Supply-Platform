@@ -534,8 +534,12 @@ export default function FarmerSignup() {
         throw new Error(data.message || "Something went wrong.");
       }
 
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
       setSuccess(true);
-      setTimeout(() => navigate('/'), 2000);
+      
+      const targetRoute = data.role === 'buyer' ? '/buyer' : '/dashboard';
+      setTimeout(() => navigate(targetRoute), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
