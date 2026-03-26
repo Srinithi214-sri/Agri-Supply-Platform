@@ -24,11 +24,7 @@ def create_simulated_data(num_samples=500):
         'demand': np.random.choice(levels, num_samples),
         'supply': np.random.choice(levels, num_samples),
         'rainfall': np.random.choice(levels, num_samples),
-        'season': np.random.choice(seasons, num_samples),
-        'transport_cost': np.random.choice(levels, num_samples),
-        'diesel_price': np.random.uniform(70, 110, num_samples), # ₹70 to ₹110 per liter
-        'distance_to_market': np.random.uniform(10, 500, num_samples), # 10km to 500km
-        'market_tier': np.random.choice(['Tier 1 (Metro)', 'Tier 2', 'Local Village'], num_samples),
+        'season': np.random.choice(seasons, num_samples)
     }
     
     # Generate 10 days of previous prices
@@ -47,19 +43,6 @@ def create_simulated_data(num_samples=500):
     multiplier = np.where(df['demand'] == 'low', multiplier * 0.9, multiplier)
     multiplier = np.where(df['supply'] == 'low', multiplier * 1.1, multiplier)
     multiplier = np.where(df['supply'] == 'high', multiplier * 0.9, multiplier)
-    multiplier = np.where(df['transport_cost'] == 'high', multiplier * 1.05, multiplier)
-    
-    # Economics and Logistics effect on price
-    multiplier = np.where(df['market_tier'] == 'Tier 1 (Metro)', multiplier * 1.15, multiplier) # Metros are expensive
-    multiplier = np.where(df['market_tier'] == 'Local Village', multiplier * 0.90, multiplier) # Villages are cheaper
-    
-    # Longer distance = higher cost: every 100km adds 2% to price
-    distance_multiplier = 1 + (df['distance_to_market'] / 100) * 0.02
-    multiplier = multiplier * distance_multiplier
-    
-    # Higher diesel price = higher cost: base diesel around ₹90, every ₹10 above/below shifts price by 1%
-    diesel_multiplier = 1 + ((df['diesel_price'] - 90) / 10) * 0.01
-    multiplier = multiplier * diesel_multiplier
     
     # Add some noise to make it realistic
     df['next_day_price'] = base_price * multiplier + np.random.normal(0, 2, num_samples)
@@ -75,7 +58,7 @@ def train_model():
     
     # Encoding categorical variables
     label_encoders = {}
-    cat_columns = ['crop', 'demand', 'supply', 'rainfall', 'season', 'transport_cost', 'market_tier']
+    cat_columns = ['crop', 'demand', 'supply', 'rainfall', 'season']
     
     for col in cat_columns:
         le = LabelEncoder()
@@ -128,11 +111,7 @@ def predict_price(input_data):
             'demand': input_data['demand'],
             'supply': input_data['supply'],
             'rainfall': input_data['rainfall'],
-            'season': input_data['season'],
-            'transport_cost': input_data['transport_cost'],
-            'diesel_price': input_data['diesel_price'],
-            'distance_to_market': input_data['distance_to_market'],
-            'market_tier': input_data['market_tier']
+            'season': input_data['season']
         }])
         
         # Add the 10 days prices
@@ -143,7 +122,7 @@ def predict_price(input_data):
         input_df = input_df[FEATURE_COLS]
         
         # Encode categorical inputs using the fitted encoders
-        for col in ['crop', 'demand', 'supply', 'rainfall', 'season', 'transport_cost', 'market_tier']:
+        for col in ['crop', 'demand', 'supply', 'rainfall', 'season']:
             # Handle unseen labels gracefully
             if input_data[col] in ENCODERS[col].classes_:
                 input_df[col] = ENCODERS[col].transform([input_data[col]])
@@ -170,18 +149,6 @@ def predict_price(input_data):
         elif input_data['supply'] == 'high':
             reason_parts.append("excess supply")
             
-        if input_data['transport_cost'] == 'high':
-            reason_parts.append("high transportation costs")
-            
-        if input_data['market_tier'] == 'Tier 1 (Metro)':
-            reason_parts.append("premium city market pricing")
-            
-        if input_data['distance_to_market'] > 300:
-            reason_parts.append("long-distance transportation")
-            
-        if input_data['diesel_price'] > 95:
-            reason_parts.append("elevated fuel costs")
-            
         if not reason_parts:
             # Fallback generic reason
             reason = f"Based on historical price trends and normal market conditions for {input_data['crop']}."
@@ -189,7 +156,7 @@ def predict_price(input_data):
             reason = f"Price is expected to {trend.lower()} primarily due to {' and '.join(reason_parts)}."
             
         return {
-            "predicted_price": round(predicted_price, 2),
+            "predicted_price": int(round(predicted_price)),
             "trend": trend,
             "reason": reason
         }
@@ -256,10 +223,6 @@ if __name__ == "__main__":
             print(f"Invalid crop! Please choose from: {', '.join(valid_crops)}")
             continue
             
-        transport_cost = input("Enter transport cost (low/medium/high) [Default: medium]: ").strip().lower()
-        if transport_cost not in ['low', 'medium', 'high']:
-            transport_cost = 'medium'
-            
         print(f"\nAnalyzing market trends for {selected_crop}...")
         
         # Generate some randomized but reasonable inputs for the selected crop
@@ -272,11 +235,7 @@ if __name__ == "__main__":
             "demand": np.random.choice(["low", "medium", "high"]),
             "supply": np.random.choice(["low", "medium", "high"]),
             "rainfall": np.random.choice(["low", "medium", "high"]),
-            "season": "Summer",
-            "transport_cost": transport_cost,
-            "diesel_price": 95.0,
-            "distance_to_market": 150,
-            "market_tier": "Tier 2"
+            "season": "Summer"
         }
         
         result = predict_price(sample_input)
