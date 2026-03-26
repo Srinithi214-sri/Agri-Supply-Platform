@@ -526,10 +526,12 @@ export default function FarmerLogin() {
       if (!res.ok) {
         throw new Error(data.message || "Invalid credentials.");
       }
-      
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
       setSuccess(true);
-      setTimeout(() => navigate('/dashboard'), 1500);
+      
+      const targetRoute = data.role === 'buyer' ? '/buyer' : '/dashboard';
+      setTimeout(() => navigate(targetRoute), 1500);
     } catch (err) {
       setError(err.message);
     } finally {
