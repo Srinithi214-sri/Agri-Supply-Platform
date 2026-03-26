@@ -2,10 +2,12 @@ import React from 'react';
 import { Search, MapPin, TrendingUp, Truck, Filter, ShoppingBag } from 'lucide-react';
 
 const BuyerDashboard = () => {
+  const userName = localStorage.getItem("name") || "Buyer";
+
   return (
     <div className="animate-fade-in">
       <header className="page-header">
-        <h1>Buyer Dashboard 🛒</h1>
+        <h1>Welcome back, {userName}! 🛒</h1>
         <p className="subtitle">Find the best crops directly from local farmers.</p>
       </header>
 
