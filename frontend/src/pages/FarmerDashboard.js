@@ -11,6 +11,9 @@ const FarmerDashboard = () => {
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifs, setLoadingNotifs] = useState(true);
+  
   // States for Add Crop Form
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [sellPrice, setSellPrice] = useState('');
@@ -45,6 +48,21 @@ const FarmerDashboard = () => {
     
     fetchPrediction();
   }, [selectedCrop]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/notifications/farmer');
+        if (res.data.success) {
+          setNotifications(res.data.notifications);
+        }
+      } catch (err) {
+        console.error('Failed to grab notifications:', err);
+      }
+      setLoadingNotifs(false);
+    };
+    fetchNotifications();
+  }, []);
 
   const handlePublish = (e) => {
     e.preventDefault();
@@ -296,29 +314,25 @@ const FarmerDashboard = () => {
         <section id="notifications" className="card animate-fade-in">
           <h2>4. Notifications</h2>
           <div className="data-list">
-            <div className="list-item" style={{ borderLeft: '4px solid var(--primary-green)' }}>
-              <div className="list-item-left">
-                <div style={{ background: '#e8f5e9', padding: '0.5rem', borderRadius: '50%' }}>
-                  <TrendingUp color="var(--primary-green)" size={20} />
+            {loadingNotifs ? (
+              <div style={{ color: 'var(--text-secondary)', padding: '1rem', textAlign: 'center' }}>Loading latest alerts...</div>
+            ) : notifications.length > 0 ? (
+              notifications.map((notif) => (
+                <div key={notif.id} className="list-item" style={{ borderLeft: `4px solid ${notif.type === 'alert' ? 'var(--primary-green)' : notif.type === 'offer' ? 'var(--accent-orange)' : '#4299e1'}` }}>
+                  <div className="list-item-left">
+                    <div style={{ background: notif.type === 'alert' ? '#e8f5e9' : notif.type === 'offer' ? '#feebc8' : '#ebf8ff', padding: '0.5rem', borderRadius: '50%' }}>
+                      {notif.type === 'alert' ? <TrendingUp color="var(--primary-green)" size={20} /> : notif.type === 'offer' ? <Bell color="var(--accent-orange)" size={20} /> : <Info color="#4299e1" size={20} />}
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>{notif.title}</h4>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{notif.message}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>Market Uptrend Warning!</h4>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Potato prices are surging in your district. Hold stock for larger profits.</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="list-item" style={{ borderLeft: '4px solid var(--accent-orange)' }}>
-              <div className="list-item-left">
-                <div style={{ background: '#feebc8', padding: '0.5rem', borderRadius: '50%' }}>
-                  <Bell color="var(--accent-orange)" size={20} />
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>New Buyer Offer</h4>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Kisan Traders wants to buy 100kg Wheat at ₹40/kg.</p>
-                </div>
-              </div>
-            </div>
+              ))
+            ) : (
+              <p style={{ padding: '1rem' }}>No new notifications at this time.</p>
+            )}
             <button className="btn btn-outline" style={{ width: '100%', marginTop: '0.5rem' }}>View All Alerts</button>
           </div>
         </section>

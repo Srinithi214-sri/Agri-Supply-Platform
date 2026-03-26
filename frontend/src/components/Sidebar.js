@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
   Trees, BarChart2, Upload, TrendingUp, Truck, Bell,
-  Search, ShieldCheck
+  Search, ShieldCheck, LogOut
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -55,9 +55,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <Trees className="sidebar-logo-icon" size={32} />
           <h2 className="sidebar-title">AgriSmart<br/>Platform</h2>
         </div>
-        <nav className="nav-links">
+        <nav className="nav-links" style={{ flex: 1 }}>
           {navContent}
         </nav>
+        <div style={{ padding: '1rem', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          <a href="/" className="nav-item" style={{ color: '#fed7d7' }}>
+            <LogOut size={24}/> Logout
+          </a>
+        </div>
       </aside>
       {isOpen && (
         <div 
