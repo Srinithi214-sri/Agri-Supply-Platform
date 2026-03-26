@@ -19,6 +19,8 @@ const FarmerDashboard = () => {
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [sellPrice, setSellPrice] = useState('');
   const [sellQty, setSellQty] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const imageInputRef = React.useRef(null);
 
   // We fetch market and prediction data when the crop changes.
   useEffect(() => {
@@ -67,8 +69,9 @@ const FarmerDashboard = () => {
 
   const handlePublish = (e) => {
     e.preventDefault();
-    alert(`Successfully listed ${sellQty}kg of ${selectedCrop} at ₹${sellPrice}/kg!`);
-    setSellPrice(''); setSellQty('');
+    const imageInfo = selectedImage ? ` with image "${selectedImage.name}"` : ' without an image';
+    alert(`Successfully listed ${sellQty}kg of ${selectedCrop} at ₹${sellPrice}/kg${imageInfo}!`);
+    setSellPrice(''); setSellQty(''); setSelectedImage(null);
   };
 
   // Prepare graph data mimicking the python output
@@ -182,14 +185,38 @@ const FarmerDashboard = () => {
 
             <div className="form-group" style={{ margin: 0, flex: 1 }}>
               <label>Produce Image</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={imageInputRef} 
+                style={{ display: 'none' }} 
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setSelectedImage(e.target.files[0]);
+                  }
+                }}
+              />
               <div style={{ 
                 border: '2px dashed var(--border-color)', height: '100%', minHeight: '120px',
                 display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
                 borderRadius: '8px', color: 'var(--text-secondary)', cursor: 'pointer',
-                background: 'var(--bg-color)', transition: 'all 0.2s'
-              }} className="upload-box" onClick={(e) => e.currentTarget.style.borderColor = 'var(--primary-green)'}>
-                <Upload size={32} style={{ marginBottom: '0.5rem' }} />
-                <p>Tap to upload harvest photo</p>
+                background: 'var(--bg-color)', transition: 'all 0.2s',
+                ...(selectedImage ? { borderColor: 'var(--primary-green)', background: '#e8f5e9' } : {})
+              }} className="upload-box" onClick={() => imageInputRef.current.click()}>
+                {selectedImage ? (
+                  <>
+                    <Upload size={32} color="var(--primary-green)" style={{ marginBottom: '0.5rem' }} />
+                    <p style={{ color: 'var(--primary-dark)', fontWeight: '500', textAlign: 'center', padding: '0 1rem' }}>
+                      {selectedImage.name}
+                    </p>
+                    <small style={{ color: 'var(--primary-green)' }}>Click to replace</small>
+                  </>
+                ) : (
+                  <>
+                    <Upload size={32} style={{ marginBottom: '0.5rem' }} />
+                    <p>Tap to upload harvest photo</p>
+                  </>
+                )}
               </div>
             </div>
 
