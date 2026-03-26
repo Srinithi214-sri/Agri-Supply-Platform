@@ -9,6 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Cartes
 
 const FarmerDashboard = () => {
   const [prediction, setPrediction] = useState(null);
+  const userName = localStorage.getItem("name") || "Ram";
   const [loading, setLoading] = useState(false);
   
   const [notifications, setNotifications] = useState([]);
@@ -91,7 +92,7 @@ const FarmerDashboard = () => {
   return (
     <div className="animate-fade-in">
       <header className="page-header">
-        <h1>Welcome back, Farmer Ram! 🌾</h1>
+        <h1>Welcome back, Farmer {userName}! 🌾</h1>
         <p className="subtitle">Here is your farm's overview and latest market insights.</p>
       </header>
 

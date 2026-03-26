@@ -528,6 +528,7 @@ export default function FarmerLogin() {
       }
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      if (data.name) localStorage.setItem("name", data.name);
       setSuccess(true);
       
       const targetRoute = data.role === 'buyer' ? '/buyer' : '/dashboard';
